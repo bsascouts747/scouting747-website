@@ -8,7 +8,8 @@ import { sanityClient } from "sanity:client";
 // 🔌 PLUG IN YOUR LIVE CREDENTIALS HERE
 // ==========================================
 const CALENDAR_ID = "bsascouts747@gmail.com";
-const API_KEY = "AIzaSyBckx4sBA30ATEHr9YElcnxeoMLvX-ibG8";
+// Pulls the secret securely during build time (works locally and on Cloudflare)
+const API_KEY = import.meta.env.GOOGLE_CALENDAR_API_KEY;
 // ==========================================
 
 const timeMin = new Date().toISOString();
