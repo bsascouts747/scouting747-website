@@ -6,21 +6,18 @@ import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils";
 import { urlFor, buildSrcSet } from "../../utils/image";
 import { getPost } from "../../utils/sanity";
+import { sanityClient } from "astro-integration-sanity"; // Import directly at the top
 
-// --- ADDED FOR CLOUDFLARE STATIC COMPATIBILITY ---
 export async function getStaticPaths() {
-  const { sanityClient } = await import("@sanity/astro"); // Matches official Astro/Sanity setup
-  
-  // Explicitly typing the return structure so the compiler is happy
+  // Use explicit typing on the map parameter to keep TypeScript quiet
   const posts = await sanityClient.fetch<Array<{ slug: { current: string } }>>(
     `*[_type == "post" && defined(slug.current)]{ slug }`
   );
 
-  return posts.map((post) => ({
+  return posts.map((post: { slug: { current: string } }) => ({
     params: { slug: post.slug.current },
   }));
 }
-// -------------------------------------------------
 
 const { slug } = Astro.params;
 const post = await getPost(slug!);
