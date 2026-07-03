@@ -6,10 +6,10 @@ import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils";
 import { urlFor, buildSrcSet } from "../../utils/image";
 import { getPost } from "../../utils/sanity";
-import { sanityClient } from "astro-integration-sanity"; // Import directly at the top
+import { sanityClient } from "sanity:client"; // Native virtual module path for @sanity/astro
 
 export async function getStaticPaths() {
-  // Use explicit typing on the map parameter to keep TypeScript quiet
+  // Explicitly mapping the items while describing the structure to TS
   const posts = await sanityClient.fetch<Array<{ slug: { current: string } }>>(
     `*[_type == "post" && defined(slug.current)]{ slug }`
   );
