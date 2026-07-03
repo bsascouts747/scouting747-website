@@ -1,14 +1,14 @@
-import {defineType, defineArrayMember} from 'sanity'
+import {defineType, defineArrayMember, defineField} from 'sanity'
 
 /**
  * This is the schema definition for the rich text fields used for
  * for this blog studio. When you import it in schemas.js it can be
  * reused in other parts of the studio with:
- *  {
- *    name: 'someName',
- *    title: 'Some title',
- *    type: 'blockContent'
- *  }
+ * {
+ *  name: 'someName',
+ *  title: 'Some title',
+ *  type: 'blockContent'
+ * }
  */
 export default defineType({
   title: 'Block Content',
@@ -58,6 +58,28 @@ export default defineType({
     }),
     defineArrayMember({
       type: 'code',
+    }),
+    // ADDED: This enables inline image uploads within the body editor
+    defineArrayMember({
+      type: 'image',
+      options: {
+        hotspot: true, // Allows cropping and framing control in Studio
+      },
+      fields: [
+        defineField({
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          description: 'Important for screen readers and search engines.',
+          validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+          description: 'Text displayed below the image in the blog post.',
+        }),
+      ],
     }),
   ],
 })

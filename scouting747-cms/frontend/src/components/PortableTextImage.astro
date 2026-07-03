@@ -1,0 +1,16 @@
+---
+// src/components/PortableTextImage.astro
+import { sanityClient } from "sanity:client";
+import imageUrlBuilder from "@sanity/image-url";
+
+const { node } = Astro.props;
+const builder = imageUrlBuilder(sanityClient);
+
+// Resolves the Sanity image ID into an optimized CDN URL
+const imageUrl = builder.image(node).width(800).fit("max").auto("format").url();
+---
+
+<figure class="my-6 block-image">
+  <img src={imageUrl} alt={node.alt || ""} class="rounded-lg max-w-full h-auto mx-auto" />
+  {node.caption && <figcaption class="text-center text-sm text-gray-500 mt-2">{node.caption}</figcaption>}
+</figure>
