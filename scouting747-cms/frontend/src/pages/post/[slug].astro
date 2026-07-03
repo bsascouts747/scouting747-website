@@ -7,6 +7,20 @@ import { formatDate } from "../../utils";
 import { urlFor, buildSrcSet } from "../../utils/image";
 import { getPost } from "../../utils/sanity";
 
+export async function getStaticPaths() {
+  const { loadQuery } = await import("../../sanity/lib/load-query"); // Make sure this path aligns with your load-query file location!
+  
+  // This fetches all the slugs from your Sanity database
+  const { data: posts } = await loadQuery({
+    query: `*[_type == "post"]{ "slug": slug.current }`
+  });
+
+  // Map them into the parameters Astro expects
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+  }));
+}
+
 const { slug } = Astro.params;
 const post = await getPost(slug!);
 
