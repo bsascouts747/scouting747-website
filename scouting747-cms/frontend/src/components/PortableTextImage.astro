@@ -1,16 +1,20 @@
 ---
 // src/components/PortableTextImage.astro
-import { sanityClient } from "sanity:client";
-import imageUrlBuilder from "@sanity/image-url";
+import { urlFor } from "../utils/image";
 
 const { node } = Astro.props;
-const builder = imageUrlBuilder(sanityClient);
-
-// Resolves the Sanity image ID into an optimized CDN URL
-const imageUrl = builder.image(node).width(800).fit("max").auto("format").url();
+const imageUrl = urlFor(node).width(800).auto("format").quality(80).url();
 ---
 
-<figure class="my-6 block-image">
-  <img src={imageUrl} alt={node.alt || ""} class="rounded-lg max-w-full h-auto mx-auto" />
-  {node.caption && <figcaption class="text-center text-sm text-gray-500 mt-2">{node.caption}</figcaption>}
+<figure class="my-8 mx-auto max-w-3xl rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+  <img 
+    src={imageUrl} 
+    alt={node.alt || "Troop 747 Image"} 
+    class="w-full h-auto object-cover"
+  />
+  {node.caption && (
+    <figcaption class="text-center text-xs text-slate-500 mt-3 italic bg-slate-50 py-2 border-t border-slate-100">
+      {node.caption}
+    </figcaption>
+  )}
 </figure>

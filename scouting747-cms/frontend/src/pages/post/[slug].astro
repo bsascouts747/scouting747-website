@@ -16,7 +16,14 @@ export async function getStaticPaths() {
   }));
 }
 
-const { post } = Astro.props;
+// 🏛️ Add ': any' here to tell TypeScript it's perfectly safe to look inside the object
+const { post } = Astro.props as { post: any };
+
+const customComponents = {
+  type: {
+    image: PortableTextImage,
+  },
+};
 
 // This maps the block "image" type from Sanity to our new custom Astro image component!
 const customComponents = {
