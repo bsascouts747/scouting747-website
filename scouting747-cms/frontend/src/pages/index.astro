@@ -1,154 +1,86 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { urlFor, buildSrcSet } from "../utils/image";
-import { formatDate } from "../utils";
+// src/pages/post/[slug].astro
+import Layout from "../../layouts/Layout.astro";
 import { sanityClient } from "sanity:client";
+import { urlFor } from "../../utils/image";
+import { formatDate } from "../../utils";
+import { PortableText } from "astro-portabletext";
+import PortableTextImage from "../../components/PortableTextImage.astro";
 
-// ==========================================
-// 🔌 PLUG IN YOUR LIVE CREDENTIALS HERE
-// ==========================================
-const CALENDAR_ID = "bsascouts747@gmail.com";
-// Pulls the secret securely during build time (works locally and on Cloudflare)
-const API_KEY = import.meta.env.GOOGLE_CALENDAR_API_KEY;
-// ==========================================
-
-const timeMin = new Date().toISOString();
-let events = [];
-let calendarError = false;
-
-try {
-  const calendarResponse = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&maxResults=3&singleEvents=true&orderBy=startTime`
-  );
-  
-  if (!calendarResponse.ok) {
-    throw new Error(`Google API responded with status: ${calendarResponse.status}`);
-  }
-  
-  const calendarData = await calendarResponse.json();
-  events = calendarData.items || [];
-} catch (error) {
-  console.error("Calendar fetch error:", error);
-  calendarError = true;
+export async function getStaticPaths() {
+  const posts = await sanityClient.fetch(`*[_type == "post" && defined(slug.current)]`);
+  return posts.map((post: any) => ({
+    params: { slug: post.slug.current },
+    props: { post },
+  }));
 }
 
-// Fetch live blog posts from your Sanity Studio CMS backend
-const posts = await sanityClient.fetch<Array<any>>(
-  `*[_type == "post" && defined(slug.current)] | order(_createdAt desc)[0..1]`
-);
+const { post } = Astro.props as { post: any };
 
-const getEventDateInfo = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return {
-    month: d.toLocaleString("en-US", { month: "short" }),
-    day: d.getDate(),
-    time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
-  };
+const customComponents = {
+  type: {
+    image: PortableTextImage,
+  },
 };
 ---
 
-<Layout title="Boy Scout Troop 747 | Brentwood, TN" description="Building character, leadership, and adventure since 2001.">
-  
-  <div class="max-w-[1440px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 w-full">
+<Layout title={`${post.title} | Troop 747`} description={post.excerpt || ""}>
+  <div class="max-w-[1440px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 w-full py-12">
     
-    <section id="about" class="pt-20 pb-16 text-center sm:text-left">
-      <div class="max-w-4xl">
-        <h1 class="text-4xl sm:text-6xl 2xl:text-7xl font-extrabold tracking-tight text-slate-900 leading-tight">
-          Building character, leadership, and <span class="text-emerald-700">adventure</span> since 2001.
+    <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition mb-8 group">
+      <span class="transition-transform group-hover:-translate-x-1">←</span> Back to Home
+    </a>
+
+    <article class="max-w-4xl mx-auto">
+      
+      <header class="mb-8 text-center sm:text-left">
+        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs font-bold tracking-wider uppercase mb-3">
+          <span class="text-emerald-700">
+            📅 Event Date: {post.eventDate ? formatDate(post.eventDate) : "N/A"}
+          </span>
+          <span class="text-slate-300 mx-1">•</span>
+          <span class="text-slate-400 font-medium">
+            Posted: {formatDate(post._createdAt)}
+          </span>
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          {post.title}
         </h1>
-        <p class="mt-6 text-lg sm:text-xl 2xl:text-2xl text-slate-600 leading-relaxed max-w-3xl">
-          Welcome to Boy Scout Troop 747. Chartered out of Brentwood, Tennessee, we provide a youth-led program focused on outdoor adventure, community service, and lifelong leadership skills.
-        </p>
-      </div>
-    </section>
-
-    <hr class="border-slate-200 my-4" />
-
-    <section id="calendar" class="py-12 w-full">
-      <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-8 gap-2 w-full">
-        <div>
-          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Upcoming Troop Schedule</h2>
-          <p class="text-sm text-slate-500 mt-1">Live data pulled natively from our Google Calendar</p>
-        </div>
-        <span class="text-xs font-medium text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 self-start">Dynamic API Feed</span>
-      </div>
-
-      {calendarError || events.length === 0 ? (
-        <div class="w-full p-8 rounded-2xl border-2 border-dashed border-slate-200 bg-white text-center text-slate-500">
-          <span class="text-2xl block mb-2">📅</span>
-          <p class="font-medium text-slate-700">No upcoming events found on this feed right now.</p>
-          <p class="text-xs text-slate-400 mt-1">Make sure you have added active, upcoming public calendar items for future dates!</p>
-        </div>
-      ) : (
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full">
-          {events.map((event: any) => {
-            const dateInfo = getEventDateInfo(event.start.dateTime || event.start.date);
-            return (
-              <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-emerald-500/40 hover:shadow-md transition duration-300 group flex flex-col justify-between">
-                <div class="flex justify-between items-start gap-4">
-                  <div class="bg-emerald-50 text-emerald-800 rounded-xl p-3 text-center min-w-[64px] border border-emerald-100 shrink-0">
-                    <span class="block text-xs font-bold uppercase tracking-wider">{dateInfo.month}</span>
-                    <span class="block text-2xl font-black leading-none mt-0.5">{dateInfo.day}</span>
-                  </div>
-                  <div class="flex-1">
-                    <h3 class="font-bold text-lg text-slate-900 group-hover:text-emerald-800 transition line-clamp-2">{event.summary}</h3>
-                    {event.location && <p class="text-xs text-slate-500 mt-1 line-clamp-1">📍 {event.location}</p>}
-                  </div>
-                </div>
-                <div class="text-xs text-slate-400 font-medium mt-4 border-t border-slate-100 pt-3">
-                  {event.start.dateTime ? `⏰ ${dateInfo.time}` : "📅 All Day Event"}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </section>
-
-    <hr class="border-slate-200 my-4" />
-
-    <section id="news" class="py-12 mb-12 w-full">
-      <div class="mb-8">
-        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Recent News & Highlights</h2>
-        <p class="text-sm text-slate-500 mt-1">Stories written by our scouts and leaders, managed via Sanity</p>
-      </div>
-
-      <div class="grid gap-8 md:grid-cols-2 w-full">
-        {posts.map((post) => (
-          <article class="flex flex-col xl:flex-row gap-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-300">
-            <div class="w-full xl:w-56 h-48 xl:h-auto rounded-xl bg-slate-100 overflow-hidden shrink-0 shadow-inner">
-              {post.mainImage ? (
-                <img 
-                  src={urlFor(post.mainImage).width(500).auto("format").quality(80).url()} 
-                  srcset={buildSrcSet(post.mainImage, [300, 500], 80)}
-                  alt={post.mainImage.alt || post.title} 
-                  class="w-full h-full object-cover transition duration-500 hover:scale-105"
-                />
-              ) : (
-                <div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-medium text-sm">No Featured Image</div>
-              )}
+        
+        {/* Clean Author rendering using the plain text string */}
+        {post.author && (
+          <div class="flex items-center justify-center sm:justify-start gap-3 mt-6">
+            <div class="w-10 h-10 rounded-full bg-emerald-800 flex items-center justify-center text-sm font-bold text-white shadow-md">🪶</div>
+            <div>
+              <span class="block text-sm font-bold text-slate-800 leading-none">{post.author}</span>
+              <span class="text-xs text-slate-400 mt-1 block">Troop 747 Contributor</span>
             </div>
-            <div class="flex flex-col justify-between py-1 flex-1">
-              <div>
-                <time class="text-xs font-semibold text-emerald-700 tracking-wider uppercase">{formatDate(post._createdAt)}</time>
-                <h3 class="text-2xl font-bold text-slate-900 mt-1 hover:text-emerald-700 transition leading-snug">
-                  <a href={`/post/${post.slug.current}`}>{post.title}</a>
-                </h3>
-                <p class="text-sm text-slate-600 mt-3 line-clamp-3 leading-relaxed">
-                  {post.excerpt}
-                </p>
-              </div>
-              {post.author && (
-                <div class="flex items-center gap-2 mt-6">
-                  <div class="w-7 h-7 rounded-full bg-emerald-800 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">🪶</div>
-                  <span class="text-xs font-bold text-slate-700">{post.author.name}</span>
-                </div>
-              )}
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
+          </div>
+        )}
+      </header>
 
+      <div class="w-full max-h-[500px] aspect-video rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-100 flex items-center justify-center">
+        {post.mainImage ? (
+          <img 
+            src={urlFor(post.mainImage).width(1200).auto("format").quality(95).url()} 
+            alt={post.mainImage.alt || post.title} 
+            class="w-full h-full object-cover object-center" 
+          />
+        ) : (
+          /* 📸 Pulls fallback from public/images/fallback.webp (or fallback.jpg) */
+          <img 
+            src="/images/fallback.webp" 
+            alt="Troop 747 News Default Banner" 
+            class="w-full h-full object-cover object-center" 
+          />
+        )}
+      </div>
+
+      <div class="prose prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-a:text-emerald-700 hover:prose-a:text-emerald-800 prose-strong:text-slate-900">
+        <PortableText value={post.body} components={customComponents} />
+      </div>
+
+    </article>
   </div>
 </Layout>

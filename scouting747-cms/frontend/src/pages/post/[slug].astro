@@ -48,11 +48,12 @@ const customComponents = {
           {post.title}
         </h1>
         
+        {/* Clean Author rendering using the plain text string */}
         {post.author && (
           <div class="flex items-center justify-center sm:justify-start gap-3 mt-6">
             <div class="w-10 h-10 rounded-full bg-emerald-800 flex items-center justify-center text-sm font-bold text-white shadow-md">🪶</div>
             <div>
-              <span class="block text-sm font-bold text-slate-800 leading-none">{post.author.name}</span>
+              <span class="block text-sm font-bold text-slate-800 leading-none">{post.author}</span>
               <span class="text-xs text-slate-400 mt-1 block">Troop 747 Contributor</span>
             </div>
           </div>
@@ -67,22 +68,12 @@ const customComponents = {
             class="w-full h-full object-cover object-center" 
           />
         ) : (
-        /* 📸 This points straight to your public image asset folder */
-        <img 
-          src="/images/fallback.webp" 
-          alt="Troop 747 News Default Banner" 
-          class="w-full h-full object-cover object-center" 
-        />
-        )}
-      </div>
-        ) : (
-          /* Clean, modern vectors for your placeholder graphic */
-          <div class="w-full h-full bg-gradient-to-br from-emerald-800 to-emerald-950 flex flex-col items-center justify-center text-emerald-100/60 p-6">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-16 h-16 opacity-40 mb-2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v14.25A2.25 2.25 0 0 0 5.25 19.5h13.5A2.25 2.25 0 0 0 21 17.25V3m-18.75 0h18.75M3.75 6h16.5M3.75 9h16.5M3.75 12h16.5m-13.5 3h13.5" />
-            </svg>
-            <span class="text-xs font-bold tracking-widest uppercase opacity-50">Troop 747 News Feed</span>
-          </div>
+          /* 📸 Pulls fallback from public/images/fallback.webp (or fallback.jpg) */
+          <img 
+            src="/images/fallback.webp" 
+            alt="Troop 747 News Default Banner" 
+            class="w-full h-full object-cover object-center" 
+          />
         )}
       </div>
 
