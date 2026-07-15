@@ -6,6 +6,7 @@ import { urlFor } from "../../utils/image";
 import { formatDate } from "../../utils";
 import { PortableText } from "astro-portabletext";
 import PortableTextImage from "../../components/PortableTextImage.astro";
+import "../../styles/global.css"; // 👈 Ensures styling matches perfectly on nested routes
 
 export async function getStaticPaths() {
   const posts = await sanityClient.fetch(`*[_type == "post" && defined(slug.current)]`);
@@ -32,7 +33,6 @@ const customComponents = {
     </a>
 
     <article class="max-w-4xl mx-auto">
-      
       <header class="mb-8 text-center sm:text-left">
         <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs font-bold tracking-wider uppercase mb-3">
           <span class="text-emerald-700">
@@ -43,12 +43,10 @@ const customComponents = {
             Posted: {formatDate(post._createdAt)}
           </span>
         </div>
-
         <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
           {post.title}
         </h1>
         
-        {/* Clean Author rendering using the plain text string */}
         {post.author && (
           <div class="flex items-center justify-center sm:justify-start gap-3 mt-6">
             <div class="w-10 h-10 rounded-full bg-emerald-800 flex items-center justify-center text-sm font-bold text-white shadow-md">🪶</div>
@@ -68,19 +66,19 @@ const customComponents = {
             class="w-full h-full object-cover object-center" 
           />
         ) : (
-          /* 📸 Pulls fallback from public/images/fallback.webp (or fallback.jpg) */
-          <img 
-            src="/images/fallback.webp" 
-            alt="Troop 747 News Default Banner" 
-            class="w-full h-full object-cover object-center" 
-          />
+          <div class="w-full h-full bg-[#1e293b] flex items-center justify-center p-8 sm:p-16">
+            <img 
+              src="/images/logo.png" 
+              alt="BSA Troop 747 Logo" 
+              class="max-w-[80%] max-h-[60%] object-contain select-none pointer-events-none" 
+            />
+          </div>
         )}
       </div>
 
       <div class="prose prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-a:text-emerald-700 hover:prose-a:text-emerald-800 prose-strong:text-slate-900">
         <PortableText value={post.body} components={customComponents} />
       </div>
-
     </article>
   </div>
 </Layout>

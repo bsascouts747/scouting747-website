@@ -1,12 +1,39 @@
 ---
 // src/pages/index.astro
+import Layout from "../layouts/Layout.astro";
 import { sanityClient } from "sanity:client";
-import { urlFor } from "../utils/image";
+import { urlFor, buildSrcSet } from "../utils/image";
 import { formatDate } from "../utils";
-import "../styles/global.css"; // 👈 Adds Tailwind support back to the page!
+import "../styles/global.css"; // 👈 Restores Tailwind CSS!
+
+// ==========================================
+// 🔌 GOOGLE CALENDAR API INTEGRATION
+// ==========================================
+const CALENDAR_ID = "bsascouts747@gmail.com";
+const API_KEY = import.meta.env.GOOGLE_CALENDAR_API_KEY;
+const timeMin = new Date().toISOString();
+
+let events = [];
+let calendarError = false;
+
+try {
+  const calendarResponse = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&maxResults=3&singleEvents=true&orderBy=startTime`
+  );
+  
+  if (!calendarResponse.ok) {
+    throw new Error(`Google API responded with status: ${calendarResponse.status}`);
+  }
+  
+  const calendarData = await calendarResponse.json();
+  events = calendarData.items || [];
+} catch (error) {
+  console.error("Calendar fetch error:", error);
+  calendarError = true;
+}
 
 // 🔄 Fetch posts, sorting by eventDate (Newest event at the top)
-const posts = await sanityClient.fetch(`
+const posts = await sanityClient.fetch<Array<any>>(`
   *[_type == "post"] | order(coalesce(eventDate, _createdAt) desc) {
     title,
     slug,
@@ -17,166 +44,128 @@ const posts = await sanityClient.fetch(`
     excerpt
   }
 `);
+
+const getEventDateInfo = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return {
+    month: d.toLocaleString("en-US", { month: "short" }),
+    day: d.getDate(),
+    time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+  };
+};
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boy Scout Troop 747 | Brentwood, TN</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-900 antialiased">
-
-    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="text-xl font-bold tracking-tight text-emerald-800">⚜️ Troop 747</span>
-                <span class="hidden sm:inline text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">Brentwood, TN</span>
-            </div>
-            <nav class="flex items-center gap-6 text-sm font-medium text-slate-600">
-                <a href="#about" class="hover:text-emerald-700 transition">About</a>
-                <a href="#calendar" class="hover:text-emerald-700 transition">Calendar</a>
-                <a href="#news" class="hover:text-emerald-700 transition">News & Blog</a>
-            </nav>
-        </div>
-    </header>
-
-    <section id="about" class="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center sm:text-left">
-        <div class="max-w-3xl">
-            <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-slate-900 tracking-tight leading-tight">
-                Building character, leadership, and <span class="text-emerald-700">adventure</span> since 2008.
-            </h1>
-            <p class="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed">
-                Welcome to Boy Scout Troop 747. Chartered out of Brentwood, Tennessee, we provide a youth-led program focused on outdoor adventure, community service, and lifelong leadership skills.
-            </p>
-        </div>
+<Layout title="Boy Scout Troop 747 | Brentwood, TN" description="Building character, leadership, and adventure since 2008.">
+  <div class="max-w-[1440px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 w-full py-12">
+    
+    <section id="about" class="pt-20 pb-16 text-center sm:text-left">
+      <div class="max-w-4xl">
+        <h1 class="text-4xl sm:text-6xl 2xl:text-7xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          Building character, leadership, and <span class="text-emerald-700">adventure</span> since 2008.
+        </h1>
+        <p class="mt-6 text-lg sm:text-xl 2xl:text-2xl text-slate-600 leading-relaxed max-w-3xl">
+          Welcome to Boy Scout Troop 747. Chartered out of Brentwood, Tennessee, we provide a youth-led program focused on outdoor adventure, community service, and lifelong leadership skills.
+        </p>
+      </div>
     </section>
 
-    <hr class="max-w-6xl mx-auto border-slate-200 my-4">
+    <hr class="border-slate-200 my-4" />
 
-    <section id="calendar" class="max-w-6xl mx-auto px-6 py-12">
-        <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-8 gap-2">
-            <div>
-                <h2 class="text-2xl font-bold tracking-tight text-slate-900">Upcoming Troop Schedule</h2>
-                <p class="text-sm text-slate-500 mt-1">Live data pulled natively from our Google Calendar</p>
-            </div>
-            <span class="text-xs font-medium text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 self-start">Updated 1 hour ago</span>
+    <section id="calendar" class="py-12 w-full">
+      <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-8 gap-2 w-full">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Upcoming Troop Schedule</h2>
+          <p class="text-sm text-slate-500 mt-1">Live data pulled natively from our Google Calendar</p>
         </div>
+        <span class="text-xs font-medium text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 self-start">Dynamic API Feed</span>
+      </div>
 
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500/40 hover:shadow-sm transition group">
-                <div class="flex justify-between items-start gap-4">
-                    <div class="bg-emerald-50 text-emerald-800 rounded-xl p-3 text-center min-w-[56px] border border-emerald-100">
-                        <span class="block text-xs font-bold uppercase tracking-wider">Jul</span>
-                        <span class="block text-xl font-bold leading-none mt-0.5">17</span>
-                    </div>
-                    <div class="flex-1">
-                        <span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200/60 mb-2">🏕️ Campout</span>
-                        <h3 class="font-semibold text-slate-900 group-hover:text-emerald-800 transition">Summer Whitewater Rafting</h3>
-                        <p class="text-xs text-slate-500 mt-1">Ocoee River, TN</p>
-                        <p class="text-xs text-slate-400 mt-0.5">All Day Event</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500/40 hover:shadow-sm transition group">
-                <div class="flex justify-between items-start gap-4">
-                    <div class="bg-slate-100 text-slate-700 rounded-xl p-3 text-center min-w-[56px] border border-slate-200">
-                        <span class="block text-xs font-bold uppercase tracking-wider">Jul</span>
-                        <span class="block text-xl font-bold leading-none mt-0.5">21</span>
-                    </div>
-                    <div class="flex-1">
-                        <span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200/60 mb-2">⚜️ Troop Meeting</span>
-                        <h3 class="font-semibold text-slate-900 group-hover:text-emerald-800 transition">PLC & Advancement Prep</h3>
-                        <p class="text-xs text-slate-500 mt-1">Troop Hut</p>
-                        <p class="text-xs text-slate-400 mt-0.5">7:00 PM - 8:30 PM</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500/40 hover:shadow-sm transition group">
-                <div class="flex justify-between items-start gap-4">
-                    <div class="bg-slate-100 text-slate-700 rounded-xl p-3 text-center min-w-[56px] border border-slate-200">
-                        <span class="block text-xs font-bold uppercase tracking-wider">Aug</span>
-                        <span class="block text-xl font-bold leading-none mt-0.5">04</span>
-                    </div>
-                    <div class="flex-1">
-                        <span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-800 border border-purple-200/60 mb-2">🎖️ Special Event</span>
-                        <h3 class="font-semibold text-slate-900 group-hover:text-emerald-800 transition">Summer Court of Honor</h3>
-                        <p class="text-xs text-slate-500 mt-1">Main Sanctuary</p>
-                        <p class="text-xs text-slate-400 mt-0.5">6:30 PM</p>
-                    </div>
-                </div>
-            </div>
+      {calendarError || events.length === 0 ? (
+        <div class="w-full p-8 rounded-2xl border-2 border-dashed border-slate-200 bg-white text-center text-slate-500">
+          <span class="text-2xl block mb-2">📅</span>
+          <p class="font-medium text-slate-700">No upcoming events found on this feed right now.</p>
+          <p class="text-xs text-slate-400 mt-1">Make sure you have added active, upcoming public calendar items for future dates!</p>
         </div>
+      ) : (
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full">
+          {events.map((event: any) => {
+            const dateInfo = getEventDateInfo(event.start.dateTime || event.start.date);
+            return (
+              <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-emerald-500/40 hover:shadow-md transition duration-300 group flex flex-col justify-between">
+                <div class="flex justify-between items-start gap-4">
+                  <div class="bg-emerald-50 text-emerald-800 rounded-xl p-3 text-center min-w-[64px] border border-emerald-100 shrink-0">
+                    <span class="block text-xs font-bold uppercase tracking-wider">{dateInfo.month}</span>
+                    <span class="block text-2xl font-black leading-none mt-0.5">{dateInfo.day}</span>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="font-bold text-lg text-slate-900 group-hover:text-emerald-800 transition line-clamp-2">{event.summary}</h3>
+                    {event.location && <p class="text-xs text-slate-500 mt-1 line-clamp-1">📍 {event.location}</p>}
+                  </div>
+                </div>
+                <div class="text-xs text-slate-400 font-medium mt-4 border-t border-slate-100 pt-3">
+                  {event.start.dateTime ? `⏰ ${dateInfo.time}` : "📅 All Day Event"}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </section>
 
-    <hr class="max-w-6xl mx-auto border-slate-200 my-4">
+    <hr class="border-slate-200 my-4" />
 
-    <section id="news" class="max-w-6xl mx-auto px-6 py-12">
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold tracking-tight text-slate-900">Recent News & Highlights</h2>
-            <p class="text-sm text-slate-500 mt-1">Stories written by our scouts and leaders, managed via Sanity</p>
-        </div>
+    <section id="news" class="py-12 mb-12 w-full">
+      <div class="mb-8">
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Recent News & Highlights</h2>
+        <p class="text-sm text-slate-500 mt-1">Stories written by our scouts and leaders, managed via Sanity</p>
+      </div>
 
-        <div class="grid gap-8 md:grid-cols-2">
-            {posts.map((post: any) => (
-                <article class="flex flex-col sm:flex-row gap-6 bg-white p-4 rounded-2xl border border-slate-200 hover:border-emerald-500/20 hover:shadow-sm transition duration-200">
-                    
-                    <div class="w-full sm:w-48 h-48 sm:h-auto rounded-xl bg-slate-100 overflow-hidden shrink-0 relative flex items-center justify-center">
-                        {post.mainImage ? (
-                            <img 
-                                src={urlFor(post.mainImage).width(400).height(400).auto("format").url()} 
-                                alt={post.title} 
-                                class="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <div class="w-full h-full bg-[#1e293b] flex items-center justify-center p-6">
-                                <img 
-                                  src="/images/logo.png" 
-                                  alt="BSA Troop 747 Logo" 
-                                  class="max-w-full max-h-full object-contain select-none pointer-events-none" 
-                                />
-                            </div>
-                        )}
-                    </div>
-                    
-                    <div class="flex flex-col justify-between py-2 flex-1">
-                        <div>
-                            <time class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
-                                📅 {post.eventDate ? formatDate(post.eventDate) : formatDate(post._createdAt)}
-                            </time>
-                            <h3 class="text-xl font-bold text-slate-900 mt-1 hover:text-emerald-700 transition">
-                                <a href={`/post/${post.slug.current}`}>{post.title}</a>
-                            </h3>
-                            <p class="text-sm text-slate-600 mt-2 line-clamp-3">
-                                {post.excerpt || "Click to open and read the full details from this recent troop update."}
-                            </p>
-                        </div>
-                        
-                        {post.author && (
-                            <div class="flex items-center gap-2 mt-4 sm:mt-0">
-                                <div class="w-6 h-6 rounded-full bg-emerald-800 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">🪶</div>
-                                <span class="text-xs font-semibold text-slate-700">{post.author}</span>
-                            </div>
-                        )}
-                    </div>
-                </article>
-            ))}
-        </div>
+      <div class="grid gap-8 md:grid-cols-2 w-full">
+        {posts.map((post) => (
+          <article class="flex flex-col xl:flex-row gap-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-300">
+            
+            <div class="w-full xl:w-56 h-48 xl:h-auto rounded-xl overflow-hidden shrink-0 shadow-inner relative flex items-center justify-center bg-slate-100">
+              {post.mainImage ? (
+                <img 
+                  src={urlFor(post.mainImage).width(500).auto("format").quality(80).url()} 
+                  srcset={buildSrcSet(post.mainImage, [300, 500], 80)}
+                  alt={post.mainImage.alt || post.title} 
+                  class="w-full h-full object-cover transition duration-500 hover:scale-105" 
+                />
+              ) : (
+                <div class="w-full h-full bg-[#1e293b] flex items-center justify-center p-6">
+                  <img 
+                    src="/images/logo.png" 
+                    alt="BSA Troop 747 Logo" 
+                    class="max-w-full max-h-full object-contain select-none pointer-events-none" 
+                  />
+                </div>
+              )}
+            </div>
+
+            <div class="flex flex-col justify-between py-1 flex-1">
+              <div>
+                <time class="text-xs font-semibold text-emerald-700 tracking-wider uppercase">
+                  📅 {post.eventDate ? formatDate(post.eventDate) : formatDate(post._createdAt)}
+                </time>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1 hover:text-emerald-700 transition leading-snug">
+                  <a href={`/post/${post.slug.current}`}>{post.title}</a>
+                </h3>
+                <p class="text-sm text-slate-600 mt-3 line-clamp-3 leading-relaxed">
+                  {post.excerpt || "Click to read the full details of this recent post."}
+                </p>
+              </div>
+              
+              {post.author && (
+                <div class="flex items-center gap-2 mt-6">
+                  <div class="w-7 h-7 rounded-full bg-emerald-800 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">🪶</div>
+                  <span class="text-xs font-bold text-slate-700">{post.author}</span>
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
-
-    <footer class="bg-slate-900 text-slate-400 mt-20 border-t border-slate-800">
-        <div class="max-w-6xl mx-auto px-6 py-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-            <p>&copy; 2026 BSA Troop 747 Brentwood, TN. All rights reserved.</p>
-            <p class="text-slate-500">Built using Astro, Sanity, and Cloudflare Pages.</p>
-        </div>
-    </footer>
-
-</body>
-</html>
+  </div>
+</Layout>
