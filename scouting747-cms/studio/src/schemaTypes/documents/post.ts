@@ -26,6 +26,12 @@ export default defineType({
       },
     }),
     defineField({
+      name: 'author',
+      title: 'Author / Contributor Name',
+      type: 'string', // ✍️ Changed from 'reference' to 'string'
+      description: 'Type the name of the person who wrote this article (e.g., John Doe).'
+    }),
+    defineField({
       name: 'eventDate',
       title: 'Date Event Happened',
       type: 'date',
