@@ -3,6 +3,7 @@
 import { sanityClient } from "sanity:client";
 import { urlFor } from "../utils/image";
 import { formatDate } from "../utils";
+import "../styles/global.css"; // 👈 Adds Tailwind support back to the page!
 
 // 🔄 Fetch posts, sorting by eventDate (Newest event at the top)
 const posts = await sanityClient.fetch(`
