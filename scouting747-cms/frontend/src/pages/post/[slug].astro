@@ -59,13 +59,22 @@ const customComponents = {
         )}
       </header>
 
-      <div class="w-full aspect-[21/9] rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-50">
+      <div class="w-full max-h-[500px] aspect-video rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-100 flex items-center justify-center">
         {post.mainImage ? (
           <img 
-            src={urlFor(post.mainImage).width(1200).auto("format").quality(85).url()} 
+            src={urlFor(post.mainImage).width(1200).auto("format").quality(95).url()} 
             alt={post.mainImage.alt || post.title} 
-            class="w-full h-full object-cover"
+            class="w-full h-full object-cover object-center" 
           />
+        ) : (
+        /* 📸 This points straight to your public image asset folder */
+        <img 
+          src="/images/fallback.webp" 
+          alt="Troop 747 News Default Banner" 
+          class="w-full h-full object-cover object-center" 
+        />
+        )}
+      </div>
         ) : (
           /* Clean, modern vectors for your placeholder graphic */
           <div class="w-full h-full bg-gradient-to-br from-emerald-800 to-emerald-950 flex flex-col items-center justify-center text-emerald-100/60 p-6">
