@@ -7,7 +7,6 @@ import { formatDate } from "../../utils";
 import { PortableText } from "astro-portabletext";
 import PortableTextImage from "../../components/PortableTextImage.astro";
 
-// Tell Astro which dynamic posts to generate during build time
 export async function getStaticPaths() {
   const posts = await sanityClient.fetch(`*[_type == "post" && defined(slug.current)]`);
   return posts.map((post: any) => ({
@@ -16,7 +15,6 @@ export async function getStaticPaths() {
   }));
 }
 
-// 🏛️ Add ': any' here to tell TypeScript it's perfectly safe to look inside the object
 const { post } = Astro.props as { post: any };
 
 const customComponents = {
@@ -36,9 +34,16 @@ const customComponents = {
     <article class="max-w-4xl mx-auto">
       
       <header class="mb-8 text-center sm:text-left">
-        <time class="text-xs font-bold text-emerald-700 tracking-wider uppercase block mb-3">
-          {formatDate(post._createdAt)}
-        </time>
+        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs font-bold tracking-wider uppercase mb-3">
+          <span class="text-emerald-700">
+            📅 Event Date: {post.eventDate ? formatDate(post.eventDate) : "N/A"}
+          </span>
+          <span class="text-slate-300 mx-1">•</span>
+          <span class="text-slate-400 font-medium">
+            Posted: {formatDate(post._createdAt)}
+          </span>
+        </div>
+
         <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
           {post.title}
         </h1>
@@ -54,15 +59,23 @@ const customComponents = {
         )}
       </header>
 
-      {post.mainImage && (
-        <div class="w-full aspect-[21/9] rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-100">
+      <div class="w-full aspect-[21/9] rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-50">
+        {post.mainImage ? (
           <img 
             src={urlFor(post.mainImage).width(1200).auto("format").quality(85).url()} 
             alt={post.mainImage.alt || post.title} 
             class="w-full h-full object-cover"
           />
-        </div>
-      )}
+        ) : (
+          /* Clean, modern vectors for your placeholder graphic */
+          <div class="w-full h-full bg-gradient-to-br from-emerald-800 to-emerald-950 flex flex-col items-center justify-center text-emerald-100/60 p-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-16 h-16 opacity-40 mb-2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v14.25A2.25 2.25 0 0 0 5.25 19.5h13.5A2.25 2.25 0 0 0 21 17.25V3m-18.75 0h18.75M3.75 6h16.5M3.75 9h16.5M3.75 12h16.5m-13.5 3h13.5" />
+            </svg>
+            <span class="text-xs font-bold tracking-widest uppercase opacity-50">Troop 747 News Feed</span>
+          </div>
+        )}
+      </div>
 
       <div class="prose prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-a:text-emerald-700 hover:prose-a:text-emerald-800 prose-strong:text-slate-900">
         <PortableText value={post.body} components={customComponents} />

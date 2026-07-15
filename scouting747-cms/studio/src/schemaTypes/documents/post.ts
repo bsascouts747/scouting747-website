@@ -26,6 +26,16 @@ export default defineType({
       },
     }),
     defineField({
+      name: 'eventDate',
+      title: 'Date Event Happened',
+      type: 'date',
+      options: {
+        dateFormat: 'YYYY-MM-DD',
+        calendarTodayLabel: 'Today'
+      },
+      description: 'Select the actual date this scouting event took place.'
+    }),
+    defineField({
       name: 'excerpt',
       title: 'Excerpt',
       type: 'text',
