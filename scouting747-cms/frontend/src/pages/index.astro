@@ -46,7 +46,7 @@ try {
 
 // 🔄 Fetch posts, sorting by eventDate (Newest event at the top)
 const posts = await sanityClient.fetch<Array<any>>(`
-  *[_type == "post"] | order(coalesce(eventDate, _createdAt) desc) {
+  *[_type == "post"] | order(coalesce(eventDate, _createdAt) desc) [0...4] {
     title,
     slug,
     eventDate,
@@ -217,6 +217,12 @@ const getEventDateInfo = (dateStr: string) => {
             </div>
           </article>
         ))}
+      </div>
+      <div class="text-right mt-4">
+        <a href="/news" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition group">
+          View All News
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </a>
       </div>
     </section>
   </div>
