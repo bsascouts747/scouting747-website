@@ -305,6 +305,77 @@ const getEventDateInfo = (dateStr: string) => {
         </a>
       </div>
     </section>
+    <hr class="border-slate-200 my-4" />
+
+    <section id="contact" class="py-12 w-full">
+      <div class="mb-10">
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Contact Us</h2>
+        <p class="text-sm text-slate-500 mt-1">Everything you need to visit, join, or reach out.</p>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
+        {/* Location */}
+        <div class="bg-white p-6 rounded-2xl border border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4 text-lg">
+            📍
+          </div>
+          <h3 class="font-bold text-slate-900 mb-2">Location</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Covenant Presbyterian Church<br />
+            33 Burton Hills Blvd<br />
+            Nashville, TN 37215
+          </p>
+        </div>
+
+        {/* Email */}
+        <div class="bg-white p-6 rounded-2xl border border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4 text-lg">
+            ✉️
+          </div>
+          <h3 class="font-bold text-slate-900 mb-2">Email</h3>
+          
+            href="mailto:ScoutMeIn@Scouting747.com"
+            class="text-sm text-emerald-700 hover:text-emerald-800 font-semibold transition break-words"
+          >
+            ScoutMeIn@Scouting747.com
+          </a>
+        </div>
+
+        {/* Join Our Troop */}
+        <div class="bg-white p-6 rounded-2xl border border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4 text-lg">
+            🪶
+          </div>
+          <h3 class="font-bold text-slate-900 mb-2">Join Our Troop</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mb-3">
+            Fill out an application online.
+          </p>
+          
+            href="https://my.scouting.org/VES/OnlineReg/1.0.0/?tu=UF-MB-560taa0747"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition group"
+          >
+            Apply Now
+            <span class="transition-transform group-hover:translate-x-1">→</span>
+          </a>
+        </div>
+
+        {/* Weekly Meetings */}
+        <div class="bg-white p-6 rounded-2xl border border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4 text-lg">
+            🗓️
+          </div>
+          <h3 class="font-bold text-slate-900 mb-2">Weekly Meetings</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Most Mondays<br />
+            7:00 PM – 8:30 PM
+          </p>
+        </div>
+
+      </div>
+    </section>
   </div>
 </Layout>;
 ---
