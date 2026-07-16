@@ -29,7 +29,7 @@ export default defineType({
       name: 'author',
       title: 'Author / Contributor Name',
       type: 'string', // ✍️ Changed from 'reference' to 'string'
-      description: 'Type the name of the person who wrote this article (e.g., John Doe).'
+      description: 'Type the name of the person who wrote this article (e.g., John Doe).',
     }),
     defineField({
       name: 'eventDate',
@@ -37,9 +37,9 @@ export default defineType({
       type: 'date',
       options: {
         dateFormat: 'YYYY-MM-DD',
-        calendarTodayLabel: 'Today'
+        calendarTodayLabel: 'Today',
       },
-      description: 'Select the actual date this scouting event took place.'
+      description: 'Select the actual date this scouting event took place.',
     }),
     defineField({
       name: 'excerpt',
@@ -54,14 +54,14 @@ export default defineType({
       options: {
         hotspot: true,
       },
-			fields: [
-				defineField({
-					name: 'alt',
-					title: 'Alternative text',
-					type: 'string',
-					validation: (Rule) => Rule.required(),
-				}),
-			],
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alternative text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
     }),
     defineField({
       name: 'body',
@@ -73,6 +73,27 @@ export default defineType({
       title: 'SEO',
       type: 'seo',
     }),
+    {
+      name: 'gallery',
+      title: 'Photo Gallery',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          options: {hotspot: true},
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alt text',
+            },
+          ],
+        },
+      ],
+      options: {
+        layout: 'grid',
+      },
+    },
   ],
   preview: {
     select: {
