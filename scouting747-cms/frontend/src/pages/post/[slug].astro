@@ -98,12 +98,26 @@ const customComponents = {
               class="w-full h-full object-cover object-center"
             />
           ) : (
-            <div class="w-full h-full bg-[#1e293b] flex items-center justify-center p-8 sm:p-16">
-              <img
-                src="/images/logo.png"
-                alt="BSA Troop 747 Logo"
-                class="max-w-[80%] max-h-[60%] object-contain select-none pointer-events-none"
-              />
+            <div class="w-full max-h-[600px] rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-100 flex items-center justify-center">
+              {post.mainImage ? (
+                <img
+                  src={urlFor(post.mainImage)
+                    .width(1200)
+                    .auto("format")
+                    .quality(95)
+                    .url()}
+                  alt={post.mainImage.alt || post.title}
+                  class="w-full h-full object-contain object-center"
+                />
+              ) : (
+                <div class="w-full h-full bg-[#1e293b] flex items-center justify-center p-8 sm:p-16">
+                  <img
+                    src="/images/logo.png"
+                    alt="BSA Troop 747 Logo"
+                    class="max-w-[80%] max-h-[60%] object-contain select-none pointer-events-none"
+                  />
+                </div>
+              )}
             </div>
           )
         }
