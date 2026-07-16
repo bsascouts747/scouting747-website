@@ -122,7 +122,6 @@ const customComponents = {
           )
         }
       </div>
-      ) }
     </article>
 
     <div
@@ -162,19 +161,19 @@ const customComponents = {
             onclick="closeLightbox()"
           >
             <button
-              onclick="closeLightbox()"
+              data-lightbox-close
               class="absolute top-4 right-4 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
             >
               ✕
             </button>
             <button
-              onclick="event.stopPropagation(); prevPhoto()"
+              data-lightbox-prev
               class="absolute left-4 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
             >
               ‹
             </button>
             <button
-              onclick="event.stopPropagation(); nextPhoto()"
+              data-lightbox-next
               class="absolute right-16 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
             >
               ›
@@ -239,6 +238,37 @@ const customComponents = {
         document.getElementById("lightbox-counter").textContent =
           `${currentIndex + 1} / ${galleryUrls.length}`;
       }
+
+      // Wire up gallery buttons via data attributes
+      document.querySelectorAll("[data-gallery-index]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          openLightbox(parseInt(btn.getAttribute("data-gallery-index")));
+        });
+      });
+
+      // Wire up lightbox controls
+      document
+        .getElementById("lightbox")
+        .addEventListener("click", closeLightbox);
+      document
+        .getElementById("lightbox-img")
+        .addEventListener("click", (e) => e.stopPropagation());
+
+      document.querySelectorAll("[data-lightbox-prev]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          prevPhoto();
+        });
+      });
+      document.querySelectorAll("[data-lightbox-next]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          nextPhoto();
+        });
+      });
+      document.querySelectorAll("[data-lightbox-close]").forEach((btn) => {
+        btn.addEventListener("click", closeLightbox);
+      });
 
       // Keyboard navigation
       document.addEventListener("keydown", (e) => {
