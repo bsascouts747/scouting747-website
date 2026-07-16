@@ -98,7 +98,7 @@ const customComponents = {
               class="w-full h-full object-cover object-center"
             />
           ) : (
-            <div class="w-full max-h-[600px] rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-100 flex items-center justify-center">
+            <div class="w-full rounded-2xl overflow-hidden shadow-md border border-slate-200 mb-12 bg-slate-100 flex items-center justify-center">
               {post.mainImage ? (
                 <img
                   src={urlFor(post.mainImage)
@@ -107,10 +107,10 @@ const customComponents = {
                     .quality(95)
                     .url()}
                   alt={post.mainImage.alt || post.title}
-                  class="w-full h-full object-contain object-center"
+                  class="max-h-[600px] max-w-full object-contain"
                 />
               ) : (
-                <div class="w-full h-full bg-[#1e293b] flex items-center justify-center p-8 sm:p-16">
+                <div class="w-full h-64 bg-[#1e293b] flex items-center justify-center p-8 sm:p-16">
                   <img
                     src="/images/logo.png"
                     alt="BSA Troop 747 Logo"
@@ -122,134 +122,132 @@ const customComponents = {
           )
         }
       </div>
+      ) }
+    </article>
 
-      <div
-        class="prose prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-a:text-emerald-700 hover:prose-a:text-emerald-800 prose-strong:text-slate-900"
-      >
-        <PortableText value={post.body} components={customComponents} />
-      </div>
-      {
-        post.gallery && post.gallery.length > 0 && (
-          <div class="mt-16">
-            <h2 class="text-2xl font-bold text-slate-900 mb-6">
-              Photo Gallery
-            </h2>
+    <div
+      class="prose prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-a:text-emerald-700 hover:prose-a:text-emerald-800 prose-strong:text-slate-900"
+    >
+      <PortableText value={post.body} components={customComponents} />
+    </div>
+    {
+      post.gallery && post.gallery.length > 0 && (
+        <div class="mt-16">
+          <h2 class="text-2xl font-bold text-slate-900 mb-6">Photo Gallery</h2>
 
-            {/* Grid */}
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {post.gallery.map((photo: any, index: number) => (
-                <button
-                  onclick={`openLightbox(${index})`}
-                  class="aspect-square rounded-xl overflow-hidden bg-slate-100 hover:opacity-90 transition duration-300 hover:scale-[1.02] group"
-                >
-                  <img
-                    src={urlFor(photo)
-                      .width(600)
-                      .auto("format")
-                      .quality(80)
-                      .url()}
-                    alt={photo.alt || `Gallery photo ${index + 1}`}
-                    class="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-
-            {/* Lightbox overlay */}
-            <div
-              id="lightbox"
-              class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4"
-              onclick="closeLightbox()"
-            >
+          {/* Grid */}
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {post.gallery.map((photo: any, index: number) => (
               <button
-                onclick="closeLightbox()"
-                class="absolute top-4 right-4 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
+                onclick={`openLightbox(${index})`}
+                class="aspect-square rounded-xl overflow-hidden bg-slate-100 hover:opacity-90 transition duration-300 hover:scale-[1.02] group"
               >
-                ✕
+                <img
+                  src={urlFor(photo)
+                    .width(600)
+                    .auto("format")
+                    .quality(80)
+                    .url()}
+                  alt={photo.alt || `Gallery photo ${index + 1}`}
+                  class="w-full h-full object-cover"
+                />
               </button>
-              <button
-                onclick="event.stopPropagation(); prevPhoto()"
-                class="absolute left-4 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
-              >
-                ‹
-              </button>
-              <button
-                onclick="event.stopPropagation(); nextPhoto()"
-                class="absolute right-16 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
-              >
-                ›
-              </button>
-              <img
-                id="lightbox-img"
-                src=""
-                alt=""
-                class="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
-                onclick="event.stopPropagation()"
-              />
-              <p
-                id="lightbox-counter"
-                class="absolute bottom-4 text-white text-sm font-medium"
-              />
-            </div>
+            ))}
           </div>
-        )
+
+          {/* Lightbox overlay */}
+          <div
+            id="lightbox"
+            class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4"
+            onclick="closeLightbox()"
+          >
+            <button
+              onclick="closeLightbox()"
+              class="absolute top-4 right-4 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
+            >
+              ✕
+            </button>
+            <button
+              onclick="event.stopPropagation(); prevPhoto()"
+              class="absolute left-4 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
+            >
+              ‹
+            </button>
+            <button
+              onclick="event.stopPropagation(); nextPhoto()"
+              class="absolute right-16 text-white text-3xl font-bold hover:text-emerald-400 transition z-10"
+            >
+              ›
+            </button>
+            <img
+              id="lightbox-img"
+              src=""
+              alt=""
+              class="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
+              onclick="event.stopPropagation()"
+            />
+            <p
+              id="lightbox-counter"
+              class="absolute bottom-4 text-white text-sm font-medium"
+            />
+          </div>
+        </div>
+      )
+    }
+
+    {/* Lightbox JavaScript */}
+    <script
+      define:vars={{
+        galleryUrls: post.gallery
+          ? post.gallery.map((p: any) =>
+              urlFor(p).width(1400).auto("format").quality(90).url(),
+            )
+          : [],
+      }}
+    >
+      let currentIndex = 0;
+
+      function openLightbox(index) {
+        currentIndex = index;
+        updateLightbox();
+        const lb = document.getElementById("lightbox");
+        lb.classList.remove("hidden");
+        lb.classList.add("flex");
+        document.body.style.overflow = "hidden";
       }
 
-      {/* Lightbox JavaScript */}
-      <script
-        define:vars={{
-          galleryUrls: post.gallery
-            ? post.gallery.map((p: any) =>
-                urlFor(p).width(1400).auto("format").quality(90).url(),
-              )
-            : [],
-        }}
-      >
-        let currentIndex = 0;
+      function closeLightbox() {
+        const lb = document.getElementById("lightbox");
+        lb.classList.add("hidden");
+        lb.classList.remove("flex");
+        document.body.style.overflow = "";
+      }
 
-        function openLightbox(index) {
-          currentIndex = index;
-          updateLightbox();
-          const lb = document.getElementById("lightbox");
-          lb.classList.remove("hidden");
-          lb.classList.add("flex");
-          document.body.style.overflow = "hidden";
-        }
+      function nextPhoto() {
+        currentIndex = (currentIndex + 1) % galleryUrls.length;
+        updateLightbox();
+      }
 
-        function closeLightbox() {
-          const lb = document.getElementById("lightbox");
-          lb.classList.add("hidden");
-          lb.classList.remove("flex");
-          document.body.style.overflow = "";
-        }
+      function prevPhoto() {
+        currentIndex =
+          (currentIndex - 1 + galleryUrls.length) % galleryUrls.length;
+        updateLightbox();
+      }
 
-        function nextPhoto() {
-          currentIndex = (currentIndex + 1) % galleryUrls.length;
-          updateLightbox();
-        }
+      function updateLightbox() {
+        document.getElementById("lightbox-img").src = galleryUrls[currentIndex];
+        document.getElementById("lightbox-counter").textContent =
+          `${currentIndex + 1} / ${galleryUrls.length}`;
+      }
 
-        function prevPhoto() {
-          currentIndex =
-            (currentIndex - 1 + galleryUrls.length) % galleryUrls.length;
-          updateLightbox();
-        }
-
-        function updateLightbox() {
-          document.getElementById("lightbox-img").src =
-            galleryUrls[currentIndex];
-          document.getElementById("lightbox-counter").textContent =
-            `${currentIndex + 1} / ${galleryUrls.length}`;
-        }
-
-        // Keyboard navigation
-        document.addEventListener("keydown", (e) => {
-          const lb = document.getElementById("lightbox");
-          if (lb.classList.contains("hidden")) return;
-          if (e.key === "ArrowRight") nextPhoto();
-          if (e.key === "ArrowLeft") prevPhoto();
-          if (e.key === "Escape") closeLightbox();
-        });
-      </script>
-    </article>
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        const lb = document.getElementById("lightbox");
+        if (lb.classList.contains("hidden")) return;
+        if (e.key === "ArrowRight") nextPhoto();
+        if (e.key === "ArrowLeft") prevPhoto();
+        if (e.key === "Escape") closeLightbox();
+      });
+    </script>
   </div>
 </Layout>
