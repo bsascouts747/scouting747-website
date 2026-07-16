@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { formatDate } from "../utils";
 import "../styles/global.css";
 
 const MEETINGS_CALENDAR_ID = "89a8710b889a078fbbe7e37d71df9b4bf7bb4df99ff6d520a70315fcd90ef1dc@group.calendar.google.com";
@@ -33,7 +32,7 @@ const allEvents = [...meetings, ...events].sort((a, b) => {
   return aDate.getTime() - bDate.getTime();
 });
 
-const isMeeting = (event: any) => meetings.some(m => m.id === event.id);
+const isMeeting = (event: any) => meetings.some((m: any) => m.id === event.id);
 
 const getEventDateInfo = (dateStr: string) => {
   const d = new Date(dateStr);
