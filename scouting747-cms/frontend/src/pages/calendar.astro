@@ -1,0 +1,105 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { formatDate } from "../utils";
+import "../styles/global.css";
+
+const MEETINGS_CALENDAR_ID = "89a8710b889a078fbbe7e37d71df9b4bf7bb4df99ff6d520a70315fcd90ef1dc@group.calendar.google.com";
+const EVENTS_CALENDAR_ID = "4c20c9d115ad537933ec4d65b285dcb1683f7e46e48f57120bdf5d0062df1d8e@group.calendar.google.com";
+const API_KEY = import.meta.env.GOOGLE_CALENDAR_API_KEY;
+const timeMin = new Date().toISOString();
+
+let meetings = [];
+let events = [];
+
+try {
+  const [meetingsRes, eventsRes] = await Promise.all([
+    fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(MEETINGS_CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&maxResults=20&singleEvents=true&orderBy=startTime`),
+    fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(EVENTS_CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&maxResults=20&singleEvents=true&orderBy=startTime`)
+  ]);
+
+  const meetingsData = await meetingsRes.json();
+  const eventsData = await eventsRes.json();
+
+  meetings = meetingsData.items || [];
+  events = eventsData.items || [];
+} catch (error) {
+  console.error("Calendar fetch error:", error);
+}
+
+// Merge and sort all events chronologically
+const allEvents = [...meetings, ...events].sort((a, b) => {
+  const aDate = new Date(a.start.dateTime || a.start.date);
+  const bDate = new Date(b.start.dateTime || b.start.date);
+  return aDate.getTime() - bDate.getTime();
+});
+
+const isMeeting = (event: any) => meetings.some(m => m.id === event.id);
+
+const getEventDateInfo = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return {
+    month: d.toLocaleString("en-US", { month: "short" }),
+    day: d.getDate(),
+    year: d.getFullYear(),
+    weekday: d.toLocaleString("en-US", { weekday: "long" }),
+    time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+  };
+};
+---
+
+<Layout title="Full Calendar | Troop 747" description="Complete schedule of meetings and events for BSA Troop 747.">
+  <div class="max-w-[1440px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 w-full py-12">
+
+    <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition mb-8 group">
+      <span class="transition-transform group-hover:-translate-x-1">←</span> Back to Home
+    </a>
+
+    <div class="mb-10">
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">Troop 747 Calendar</h1>
+      <p class="text-slate-500 mt-2">All upcoming meetings and events for the next several months.</p>
+    </div>
+
+    {/* Legend */}
+    <div class="flex items-center gap-6 mb-8">
+      <div class="flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full bg-slate-400"></div>
+        <span class="text-sm text-slate-600">Troop Meeting</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full bg-emerald-600"></div>
+        <span class="text-sm text-slate-600">Troop Event</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      {allEvents.map((event: any) => {
+        const d = getEventDateInfo(event.start.dateTime || event.start.date);
+        const meeting = isMeeting(event);
+        return (
+          <div class={`flex items-center gap-5 p-5 rounded-2xl border transition duration-300 ${meeting ? 'bg-white border-slate-200 hover:border-slate-300' : 'bg-emerald-50 border-emerald-200 hover:border-emerald-400'}`}>
+            <div class={`rounded-xl p-3 text-center min-w-[64px] shrink-0 ${meeting ? 'bg-slate-100 text-slate-700' : 'bg-emerald-700 text-white'}`}>
+              <span class="block text-xs font-bold uppercase tracking-wider">{d.month}</span>
+              <span class="block text-2xl font-black leading-none mt-0.5">{d.day}</span>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class={`text-xs font-bold uppercase tracking-wider ${meeting ? 'text-slate-400' : 'text-emerald-700'}`}>
+                  {meeting ? 'Troop Meeting' : 'Troop Event'}
+                </span>
+              </div>
+              <h3 class="font-bold text-slate-900">{event.summary}</h3>
+              <div class="flex flex-wrap gap-3 mt-1">
+                <span class="text-xs text-slate-500">{d.weekday}, {d.month} {d.day} {d.year}</span>
+                {event.location && <span class="text-xs text-slate-500">📍 {event.location}</span>}
+                <span class="text-xs text-slate-400">
+                  {event.start.dateTime ? `⏰ ${d.time}` : "📅 All Day"}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+  </div>
+</Layout>
