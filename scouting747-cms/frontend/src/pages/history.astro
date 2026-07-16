@@ -1,0 +1,133 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/global.css";
+---
+
+<Layout title="Our History | Troop 747" description="The history of BSA Troop 747, Brentwood, TN.">
+  <div class="max-w-[1440px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 w-full py-12">
+
+    <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition mb-8 group">
+      <span class="transition-transform group-hover:-translate-x-1">←</span> Back to Home
+    </a>
+
+    <div class="max-w-4xl mx-auto">
+
+      <div class="mb-12">
+        <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">The History of Troop 747</h1>
+        <p class="text-emerald-700 font-semibold mt-3 text-lg">Our Troop's Story</p>
+      </div>
+
+      {/* Origin Story */}
+      <div class="prose prose-slate max-w-none mb-12">
+        <p class="text-slate-600 leading-relaxed text-lg">
+          Troop 747 has a rich history of adventure, community, and growth. Our journey began in 2008 at Thompson's Station Baptist Church. Since 2022, we have proudly called Covenant Presbyterian Church in Brentwood, TN our home, serving as an active hub for families in the Brentwood and surrounding Middle Tennessee areas.
+        </p>
+        <p class="text-slate-600 leading-relaxed text-lg mt-4">
+          From our very beginning, we've held a unique place in our local council. While our Scouts attend a wide variety of local schools, our troop has been a welcoming community for a large number of homeschool families since day one. Because of our tight-knit culture and active program, families travel from all over the area to be a part of Troop 747—even passing by other, closer options just to call this unit home.
+        </p>
+      </div>
+
+      {/* At a Glance */}
+      <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-8 mb-12">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">Troop 747 at a Glance</h2>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-700 font-black mt-0.5">→</span>
+            <span class="text-slate-700"><span class="font-bold">Size:</span> A focused, active troop of about 30 Scouts.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-700 font-black mt-0.5">→</span>
+            <span class="text-slate-700"><span class="font-bold">Meetings:</span> Every Monday of the month from 6:30 PM to 8:00 PM (excluding holidays).</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-700 font-black mt-0.5">→</span>
+            <span class="text-slate-700"><span class="font-bold">Our Patrols:</span> The Fire Ants, the Night Monkeys, and We Be Cookin'.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-700 font-black mt-0.5">→</span>
+            <span class="text-slate-700"><span class="font-bold">Active Ranks:</span> We are proud of our rank diversity, boasting active representation in every single Scout rank from Scout to Life.</span>
+          </li>
+        </ul>
+      </div>
+
+      {/* Outdoor Adventure */}
+      <div class="mb-12">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">A Legacy of Outdoor Adventure</h2>
+        <p class="text-slate-600 leading-relaxed mb-6">
+          We pride ourselves on being a highly active, outdoor-focused troop. In addition to our regular weekly meetings, we head out on at least one major adventure every single month. Our calendar is packed with variety, including:
+        </p>
+        <ul class="space-y-3">
+          {[
+            "Canoe trips and hiking treks",
+            "Car-camping and deep-woods backpacking",
+            "Merit badge advancement weekends",
+            "Meaningful community service projects"
+          ].map(item => (
+            <li class="flex items-center gap-3">
+              <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+              <span class="text-slate-700">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <hr class="border-slate-200 my-12" />
+
+      {/* Tennessee Scouting Heritage */}
+      <div class="mb-12">
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Our Local Scouting Heritage</h2>
+        <p class="text-slate-600 leading-relaxed mb-10">
+          Our troop's history is part of a larger, incredibly resilient legacy of Scouting in Tennessee. When Owen Ludvik researched our roots for his Scouting Heritage merit badge, he uncovered how deep those roots truly run.
+        </p>
+
+        {/* Timeline */}
+        <div class="relative border-l-2 border-emerald-200 ml-4 space-y-0">
+
+          {[
+            {
+              date: "September 1910",
+              title: "The Spark of Tennessee Scouting",
+              body: "Just months after the Boy Scouts of America was officially founded nationally, Tennessee's very first unit—Troop 1 in Brentwood—was established."
+            },
+            {
+              date: "1920–1921",
+              title: "First Council Charter & Boxwell's Beginnings",
+              body: "Early scouting was highly scattered until the Nashville Council was officially chartered in 1920. Just a year later, in 1921, Leslie G. Boxwell founded the very first Boxwell Summer Camp."
+            },
+            {
+              date: "1929",
+              title: "The Great Depression & Council Consolidation",
+              body: "The Great Depression hit families and Scout units hard. Many struggled to afford uniforms or travel, forcing smaller local councils into bankruptcy. To preserve Scouting in the region, the Nashville Council absorbed these smaller units, renamed itself the Nashville Area Council, and relocated Boxwell Camp to the Narrows of the Harpeth to accommodate the changes."
+            },
+            {
+              date: "1949",
+              title: "The Birth of the Middle Tennessee Council",
+              body: "As the region grew following World War II, the Nashville Area Council absorbed the Davy Crockett Council, officially creating the Middle Tennessee Council we know today."
+            },
+            {
+              date: "1957",
+              title: "A Permanent Home on Old Hickory Lake",
+              body: "After a temporary post-WWII move to the Caney Fork River near Rock Island, Boxwell finally found its permanent home. In 1957, the United States Congress granted the council the deeds to 528 acres of land along Old Hickory Lake—where generations of Scouts, including Troop 747, still camp and learn today."
+            }
+          ].map((event) => (
+            <div class="relative pl-10 pb-12 last:pb-0">
+              <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow"></div>
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">{event.date}</span>
+              <h3 class="text-lg font-bold text-slate-900 mt-1 mb-2">{event.title}</h3>
+              <p class="text-slate-600 leading-relaxed">{event.body}</p>
+            </div>
+          ))}
+
+        </div>
+      </div>
+
+      {/* Attribution */}
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center">
+        <p class="text-sm text-slate-500 italic">
+          This history was compiled and presented by Scout Owen Ludvik as part of the requirements for the Scouting Heritage Merit Badge.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</Layout>
