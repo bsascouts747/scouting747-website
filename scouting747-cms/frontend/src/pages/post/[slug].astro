@@ -169,7 +169,6 @@ const customComponents = {
               src=""
               alt=""
               class="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
-              onclick="event.stopPropagation()"
             />
             <p
               id="lightbox-counter"
@@ -181,7 +180,7 @@ const customComponents = {
     }
 
     {/* Lightbox JavaScript */}
-    <script
+    <script is:inline
       define:vars={{
         galleryUrls: post.gallery
           ? post.gallery.map((p: any) =>
