@@ -16,6 +16,7 @@ const dataset = PUBLIC_SANITY_STUDIO_DATASET;
 const studioUrl = PUBLIC_SANITY_STUDIO_URL || "http://localhost:3333";
 
 export default defineConfig({
+  site: "https://scouting747.com",
   // Static rendering is active (output: "server" and vercel() are removed)
   integrations: [
     sanity({
