@@ -4,6 +4,8 @@ import sanity from "@sanity/astro";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 
+import sitemap from "@astrojs/sitemap";
+
 // Loading environment variables from .env files
 const {
   PUBLIC_SANITY_STUDIO_PROJECT_ID,
@@ -18,18 +20,15 @@ const studioUrl = PUBLIC_SANITY_STUDIO_URL || "http://localhost:3333";
 export default defineConfig({
   site: "https://scouting747.com",
   // Static rendering is active (output: "server" and vercel() are removed)
-  integrations: [
-    sanity({
-      projectId,
-      dataset,
-      useCdn: false,
-      apiVersion: "2026-03-26", 
-      stega: {
-        studioUrl,
-      },
-    }),
-    react(),
-  ],
+  integrations: [sanity({
+    projectId,
+    dataset,
+    useCdn: false,
+    apiVersion: "2026-03-26", 
+    stega: {
+      studioUrl,
+    },
+  }), react(), sitemap()],
   vite: {
     optimizeDeps: {
       include: [
