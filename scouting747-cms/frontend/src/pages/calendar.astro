@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
+import { getEventDateInfo, getEventSortDate } from "../utils";
 
 const MEETINGS_CALENDAR_ID =
   "89a8710b889a078fbbe7e37d71df9b4bf7bb4df99ff6d520a70315fcd90ef1dc@group.calendar.google.com";
@@ -32,40 +33,11 @@ try {
 }
 
 // Merge and sort all events chronologically
-const allEvents = [...meetings, ...events].sort((a, b) => {
-  const aDate = new Date(a.start.dateTime || a.start.date);
-  const bDate = new Date(b.start.dateTime || b.start.date);
-  return aDate.getTime() - bDate.getTime();
-});
+const allEvents = [...meetings, ...events].sort(
+  (a, b) => getEventSortDate(a).getTime() - getEventSortDate(b).getTime(),
+);
 
 const isMeeting = (event: any) => meetings.some((m: any) => m.id === event.id);
-
-const getEventDateInfo = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return {
-    month: d.toLocaleString("en-US", {
-      month: "short",
-      timeZone: "America/Chicago",
-    }),
-    day: d.toLocaleString("en-US", {
-      day: "numeric",
-      timeZone: "America/Chicago",
-    }),
-    year: d.toLocaleString("en-US", {
-      year: "numeric",
-      timeZone: "America/Chicago",
-    }),
-    weekday: d.toLocaleString("en-US", {
-      weekday: "long",
-      timeZone: "America/Chicago",
-    }),
-    time: d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "America/Chicago",
-    }),
-  };
-};
 ---
 
 <Layout
@@ -107,7 +79,7 @@ const getEventDateInfo = (dateStr: string) => {
     <div class="flex flex-col gap-3">
       {
         allEvents.map((event: any) => {
-          const d = getEventDateInfo(event.start.dateTime || event.start.date);
+          const d = getEventDateInfo(event.start, event.end);
           const meeting = isMeeting(event);
           return (
             <div
@@ -134,7 +106,7 @@ const getEventDateInfo = (dateStr: string) => {
                 <h3 class="font-bold text-slate-900">{event.summary}</h3>
                 <div class="flex flex-wrap gap-3 mt-1">
                   <span class="text-xs text-slate-500">
-                    {d.weekday}, {d.month} {d.day} {d.year}
+                    {d.weekday}, {d.fullDateLabel}
                   </span>
                   {event.location && (
                     <span class="text-xs text-slate-500">

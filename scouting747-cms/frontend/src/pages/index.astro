@@ -3,7 +3,7 @@
 import Layout from "../layouts/Layout.astro";
 import { sanityClient } from "sanity:client";
 import { urlFor, buildSrcSet } from "../utils/image";
-import { formatDate } from "../utils";
+import { formatDate, getEventDateInfo } from "../utils";
 import "../styles/global.css"; // 👈 Restores Tailwind CSS!
 
 // ==========================================
@@ -65,25 +65,6 @@ const siteSettings = await sanityClient.fetch(`
     heroImageAlt
   }
 `);
-
-const getEventDateInfo = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return {
-    month: d.toLocaleString("en-US", {
-      month: "short",
-      timeZone: "America/Chicago",
-    }),
-    day: d.toLocaleString("en-US", {
-      day: "numeric",
-      timeZone: "America/Chicago",
-    }),
-    time: d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "America/Chicago",
-    }),
-  };
-};
 ---
 
 <Layout
@@ -169,9 +150,7 @@ const getEventDateInfo = (dateStr: string) => {
           <div class="flex flex-col gap-8">
             {nextMeeting &&
               (() => {
-                const d = getEventDateInfo(
-                  nextMeeting.start.dateTime || nextMeeting.start.date,
-                );
+                const d = getEventDateInfo(nextMeeting.start, nextMeeting.end);
                 return (
                   <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center gap-5">
                     <div class="bg-emerald-700 text-white rounded-xl p-3 text-center min-w-[64px] shrink-0">
@@ -197,7 +176,9 @@ const getEventDateInfo = (dateStr: string) => {
                       <p class="text-xs text-slate-400 mt-1">
                         {nextMeeting.start.dateTime
                           ? `⏰ ${d.time}`
-                          : "📅 All Day"}
+                          : d.isMultiDay
+                            ? `📅 ${d.dateLabel}`
+                            : "📅 All Day"}
                       </p>
                     </div>
                   </div>
@@ -219,9 +200,7 @@ const getEventDateInfo = (dateStr: string) => {
                 </h3>
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {upcomingEvents.map((event: any) => {
-                    const d = getEventDateInfo(
-                      event.start.dateTime || event.start.date,
-                    );
+                    const d = getEventDateInfo(event.start, event.end);
                     return (
                       <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-emerald-500/40 hover:shadow-md transition duration-300 group flex flex-col justify-between">
                         <div class="flex justify-between items-start gap-4">
@@ -247,7 +226,9 @@ const getEventDateInfo = (dateStr: string) => {
                         <div class="text-xs text-slate-400 font-medium mt-4 border-t border-slate-100 pt-3">
                           {event.start.dateTime
                             ? `⏰ ${d.time}`
-                            : "📅 All Day Event"}
+                            : d.isMultiDay
+                              ? `📅 ${d.dateLabel}`
+                              : "📅 All Day Event"}
                         </div>
                       </div>
                     );
@@ -442,4 +423,4 @@ const getEventDateInfo = (dateStr: string) => {
       </div>
     </section>
   </div>
-</Layout>; ---
+</Layout>
