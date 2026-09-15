@@ -9,7 +9,7 @@ const CALENDAR_ID = "bsascouts747@gmail.com";
 const API_KEY = import.meta.env.GOOGLE_CALENDAR_API_KEY;
 const timeMin = new Date().toISOString();
 
-let allEvents = [];
+let allEvents: any[] = [];
 
 try {
   const res = await fetch(
@@ -29,7 +29,7 @@ try {
 // The API already returns results ordered by start time, but re-sort
 // defensively using the all-day-safe comparator in case that ever changes.
 allEvents = allEvents.sort(
-  (a, b) => getEventSortDate(a).getTime() - getEventSortDate(b).getTime(),
+  (a: any, b: any) => getEventSortDate(a).getTime() - getEventSortDate(b).getTime(),
 );
 
 const isMeeting = (event: any) => isMeetingEvent(event);
