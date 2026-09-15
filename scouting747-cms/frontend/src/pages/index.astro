@@ -3,16 +3,15 @@
 import Layout from "../layouts/Layout.astro";
 import { sanityClient } from "sanity:client";
 import { urlFor, buildSrcSet } from "../utils/image";
-import { formatDate, getEventDateInfo } from "../utils";
+import { formatDate, getEventDateInfo, isMeetingEvent } from "../utils";
 import "../styles/global.css"; // 👈 Restores Tailwind CSS!
 
 // ==========================================
 // 🔌 GOOGLE CALENDAR API INTEGRATION
 // ==========================================
-const MEETINGS_CALENDAR_ID =
-  "89a8710b889a078fbbe7e37d71df9b4bf7bb4df99ff6d520a70315fcd90ef1dc@group.calendar.google.com";
-const EVENTS_CALENDAR_ID =
-  "4c20c9d115ad537933ec4d65b285dcb1683f7e46e48f57120bdf5d0062df1d8e@group.calendar.google.com";
+// Single shared calendar — meetings vs. events are told apart by recurrence
+// (see isMeetingEvent in ../utils), not by which calendar the entry lives on.
+const CALENDAR_ID = "bsascouts747@gmail.com";
 const API_KEY = import.meta.env.GOOGLE_CALENDAR_API_KEY;
 const timeMin = new Date().toISOString();
 
@@ -21,25 +20,21 @@ let upcomingEvents = [];
 let calendarError = false;
 
 try {
-  // Fetch next single meeting
-  const meetingsRes = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(MEETINGS_CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&maxResults=1&singleEvents=true&orderBy=startTime`,
+  // Fetch a generous window of upcoming entries so the next few one-off
+  // events aren't buried behind weekly recurring meeting instances.
+  const res = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&maxResults=50&singleEvents=true&orderBy=startTime`,
   );
 
-  // Fetch next 3 troop events
-  const eventsRes = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(EVENTS_CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&maxResults=3&singleEvents=true&orderBy=startTime`,
-  );
-
-  if (!meetingsRes.ok || !eventsRes.ok) {
+  if (!res.ok) {
     throw new Error("Calendar API error");
   }
 
-  const meetingsData = await meetingsRes.json();
-  const eventsData = await eventsRes.json();
+  const data = await res.json();
+  const items = data.items || [];
 
-  nextMeeting = meetingsData.items?.[0] || null;
-  upcomingEvents = eventsData.items || [];
+  nextMeeting = items.find((event: any) => isMeetingEvent(event)) || null;
+  upcomingEvents = items.filter((event: any) => !isMeetingEvent(event)).slice(0, 3);
 } catch (error) {
   console.error("Calendar fetch error:", error);
   calendarError = true;

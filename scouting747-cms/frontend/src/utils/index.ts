@@ -50,6 +50,31 @@ export function getEventSortDate(event: { start: CalendarEventTime }): Date {
     : new Date(event.start.dateTime!);
 }
 
+// ==========================================
+// 🗓️ MEETING vs. EVENT CLASSIFICATION
+// ==========================================
+//
+// The site used to pull from two separate Google Calendars (one for the
+// recurring troop meeting, one for one-off events) so it could tell them
+// apart. That required both calendars to be individually made public for
+// the API key, which is easy to forget for a newly-created calendar.
+//
+// Instead, everything now lives on one calendar, and we classify each
+// event by whether it's part of a recurring series. When the Calendar API
+// is queried with `singleEvents=true`, every expanded instance of a
+// recurring event carries a `recurringEventId` pointing back to the
+// series — a one-off event never has this field. Since the troop meeting
+// is the only thing that actually repeats week to week, this needs zero
+// manual tagging: just create the weekly meeting as a recurring event and
+// everything else as a normal one-off event, same as you already do.
+
+type CalendarEventRecurrence = { recurringEventId?: string };
+
+/** True for any instance of a recurring event (e.g. the weekly troop meeting). */
+export function isMeetingEvent(event: CalendarEventRecurrence): boolean {
+  return !!event.recurringEventId;
+}
+
 export interface EventDateInfo {
   isAllDay: boolean;
   isMultiDay: boolean;
